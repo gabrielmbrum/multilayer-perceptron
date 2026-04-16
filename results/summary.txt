@@ -1,0 +1,14 @@
+otimizadores (adam, sgd)
+- dataset1: adam (60%), sgd (40%)
+- dataset2: adam (80%), sgd (20%)
+- dataset3: adam (60%), sgd (40%)
+
+activation function (relu, tanh)
+- dataset1: tanh (60%), relu (40%)
+- dataset2: relu (59%), tanh (41%)
+- dataset3: tanh (65%), relu (35%)
+
+regularizadores (none, dropout, l2)
+- dataset1: (40%, 20%, 40%)
+- dataset2: (34%, 33%, 33%)
+- dataset3: (32%, 34%, 34%)

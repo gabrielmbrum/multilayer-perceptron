@@ -1,0 +1,249 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs} % Used for professional table formatting
+
+\title{Multi-Layer Perceptron (MLP) Performance Report}
+\author{Gabriel Martins Brum}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report evaluates the performance of a Multi-Layer Perceptron (MLP) across three distinct datasets of varying complexity and dimensionality. Through rigorous hyperparameter tuning, the study analyzes the impact of network topology, learning rates, optimization algorithms, and regularization techniques. The models successfully handled linearly separable data, non-linear concentric spatial distributions, and a high-dimensional 50-feature classification task, demonstrating the adaptability and robustness of the MLP architecture under different data conditions.
+\end{abstract}
+
+\section{Introduction}
+This report analyzes the performance of a Multi-Layer Perceptron (MLP) evaluated across three distinct datasets. The model's efficacy was assessed based on classification accuracy, training error evolution, and decision boundary visualizations for two-dimensional feature spaces.
+
+\section{Methodology}
+
+For Dataset 1, a comprehensive hyperparameter search was conducted evaluating all possible combinations of the following configurations and network topologies:
+\begin{itemize}
+    \item \textbf{Learning Rates:} $\{0.01, 0.1\}$
+    \item \textbf{Epochs:} $\{50, 100\}$
+    \item \textbf{Topology (Hidden Layers):} \texttt{[2, 1, 1]} and \texttt{[2, 2, 1]}
+    \item \textbf{Regularization:} None, Dropout ($p=0.1$), $L_2$ ($\lambda=0.001$) 
+    \item \textbf{Optimizer:} SGD and Adam
+    \item \textbf{Activation Function:} ReLU and Tanh
+    \item \textbf{Early Stopping:} Patience of 20 epochs
+\end{itemize}
+
+For Dataset 2, the problem is non-linearly separable, necessitating more neurons in the hidden layer to adequately capture the complex decision boundary. Consequently, the topologies were expanded to the following configurations:
+\begin{itemize}
+    \item \textbf{Topology:} \texttt{[2, 10, 1]}, \texttt{[2, 20, 1]}, and \texttt{[2, 30, 1]}
+\end{itemize}
+
+For Dataset 4, which involves significantly higher-dimensional input and output spaces, the topologies and learning rates were constrained to the following parameters to manage computational complexity and prevent overfitting:
+\begin{itemize}
+    \item \textbf{Learning Rates:} $\{0.01, 0.001\}$
+    \item \textbf{Topology:} \texttt{[50, 64, 4]}, \texttt{[50, 128, 64, 4]}, and \texttt{[50, 256, 128, 64, 4]}
+\end{itemize}
+
+\section{Dataset 1}
+
+The model achieved high accuracy on both the training and test sets. As illustrated by the decision boundary in Figure~\ref{fig:decision_boundary_1}, the data is linearly separable. Consequently, the MLP readily converges on a hyperplane that accurately classifies the majority of the samples using only a single neuron in the hidden layer, adhering to the principle of Occam's razor.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/best_model_decision_boundary_-_dataset_1.png}
+    \caption{Decision boundary of the best performing model on Dataset 1.}
+    \label{fig:decision_boundary_1}
+\end{figure}
+
+The best empirical result (95\% accuracy) was achieved using the architectures detailed in Table~\ref{tab:best_ds1}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l c c c c c}
+        \toprule
+        \textbf{Topology} & \textbf{Activation} & \textbf{Optimizer} & \textbf{Learning Rate} & \textbf{Regularization} & \textbf{Epochs} \\
+        \midrule
+        \texttt{[2, 1, 1]} & ReLU & Adam & 0.1 & Dropout & 100 \\
+        \texttt{[2, 1, 1]} & Tanh & SGD & 0.1 & None & 50 \\
+        \texttt{[2, 2, 1]} & Tanh & Adam & 0.1 & L2 & 100 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Best performing configurations for Dataset 1.}
+    \label{tab:best_ds1}
+\end{table}
+
+\section{Dataset 2}
+
+\subsection{Analysis}
+The performance on Dataset 2 was flawless, achieving 100\% accuracy. This optimal outcome is anticipated due to the complete absence of noise in the data. The dataset consists of two classes arranged in a concentric pattern: an inner circular cluster surrounded by an outer ring. 
+
+This topological distribution is inherently \textbf{non-linearly separable} in its original feature space. However, due to the non-linear activation functions applied within the expanded hidden layers, the MLP can effectively approximate a complex transformation, projecting the data into a higher-dimensional manifold where it becomes linearly separable. This smooth separation is depicted in Figure~\ref{fig:decision_boundary_2}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/best_model_decision_boundary_-_dataset_2.png}
+    \caption{Decision boundary of the best performing model on Dataset 2.}
+    \label{fig:decision_boundary_2}
+\end{figure}
+
+Perfect separation was achieved by 86 out of the 144 hyperparameter combinations evaluated. A subset of these top-performing configurations is presented in Table~\ref{tab:best_ds2}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l c c c c c}
+        \toprule
+        \textbf{Topology} & \textbf{Activation} & \textbf{Optimizer} & \textbf{Learning Rate} & \textbf{Regularization} & \textbf{Epochs} \\
+        \midrule
+        \texttt{[2, 10, 1]} & ReLU & SGD & 0.1 & None & 50 \\
+        \texttt{[2, 10, 1]} & ReLU & Adam & 0.1 & Dropout & 50 \\
+        \texttt{[2, 10, 1]} & Tanh & Adam & 0.1 & L2 & 50 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Best performing configurations for Dataset 2.}
+    \label{tab:best_ds2}
+\end{table}
+
+\section{Dataset 4}
+
+Dataset 4 comprises 50 distinct features, precluding standard 2D decision boundary visualization. The network architectures evaluated for this problem were categorized by parametric capacity into small, medium, and large topologies, corresponding to \texttt{[50, 64, 4]}, \texttt{[50, 128, 64, 4]}, and \texttt{[50, 256, 128, 64, 4]}, respectively.
+
+The highest recorded accuracy was 82.29\%, which represents a robust outcome given the high dimensionality (curse of dimensionality) and the inherent complexity of the problem space. The optimal configurations across all tests are summarized in Table~\ref{tab:best_ds4}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l c c c c c c}
+        \toprule
+        \textbf{Topology} & \textbf{Activation} & \textbf{Optimizer} & \textbf{Learning Rate} & \textbf{Regularization} & \textbf{Epochs} & \textbf{Accuracy} \\
+        \midrule
+        \texttt{[50, 128, 64, 4]} & Tanh & Adam & 0.01 & Dropout & 100 & 82.29\% \\
+        \texttt{[50, 64, 4]} & ReLU & SGD & 0.01 & None & 50 & 81.77\% \\
+        \texttt{[50, 256, 128, 64, 4]} & Tanh & SGD & 0.01 & None & 50 & 81.77\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Best performing configurations for Dataset 4.}
+    \label{tab:best_ds4}
+\end{table}
+
+To further analyze the training dynamics, accuracy and loss learning curves were plotted for the best and worst-performing models within each topology category.
+
+\subsection{Small Topology}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{results/learning_curve_pequena_pior.png}
+    \caption{Learning curve of the worst performing model with small topology.}
+    \label{fig:lc_small_worst}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{results/learning_curve_pequena_melhor.png}
+    \caption{Learning curve of the best performing model with small topology.}
+    \label{fig:lc_small_best}
+\end{figure}
+
+The hyperparameter differences between the best and worst small-topology models are shown in Table~\ref{tab:small_top}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l c c c c c c}
+        \toprule
+        \textbf{Topology} & \textbf{Activation} & \textbf{Optimizer} & \textbf{Learning Rate} & \textbf{Regularization} & \textbf{Epochs} & \textbf{Accuracy} \\
+        \midrule
+        \texttt{[50, 64, 4]} & ReLU & SGD & 0.01 & None & 50 & 81.77\% \\
+        \texttt{[50, 64, 4]} & ReLU & SGD & 0.001 & None & 50 & 46.87\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Best and worst configurations for the small topology.}
+    \label{tab:small_top}
+\end{table}
+
+\subsection{Medium Topology}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{results/learning_curve_média_pior.png}
+    \caption{Learning curve of the worst performing model with medium topology.}
+    \label{fig:lc_medium_worst}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{results/learning_curve_média_melhor.png}
+    \caption{Learning curve of the best performing model with medium topology.}
+    \label{fig:lc_medium_best}
+\end{figure}
+
+The hyperparameter differences between the best and worst medium-topology models are shown in Table~\ref{tab:medium_top}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l c c c c c c}
+        \toprule
+        \textbf{Topology} & \textbf{Activation} & \textbf{Optimizer} & \textbf{Learning Rate} & \textbf{Regularization} & \textbf{Epochs} & \textbf{Accuracy} \\
+        \midrule
+        \texttt{[50, 128, 64, 4]} & Tanh & Adam & 0.01 & Dropout & 100 & 82.29\% \\
+        \texttt{[50, 128, 64, 4]} & ReLU & SGD & 0.001 & L2 & 50 & 36.45\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Best and worst configurations for the medium topology.}
+    \label{tab:medium_top}
+\end{table}
+
+\subsection{Large Topology}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{results/learning_curve_grande_pior.png}
+    \caption{Learning curve of the worst performing model with large topology.}
+    \label{fig:lc_large_worst}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{results/learning_curve_grande_melhor.png}
+    \caption{Learning curve of the best performing model with large topology.}
+    \label{fig:lc_large_best}
+\end{figure}
+
+The hyperparameter differences between the best and worst large-topology models are shown in Table~\ref{tab:large_top}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l c c c c c c}
+        \toprule
+        \textbf{Topology} & \textbf{Activation} & \textbf{Optimizer} & \textbf{Learning Rate} & \textbf{Regularization} & \textbf{Epochs} & \textbf{Accuracy} \\
+        \midrule
+        \texttt{[50, 256, 128, 64, 4]} & Tanh & SGD & 0.01 & None & 100 & 81.77\% \\
+        \texttt{[50, 256, 128, 64, 4]} & ReLU & SGD & 0.001 & None & 50 & 29.68\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Best and worst configurations for the large topology.}
+    \label{tab:large_top}
+\end{table}
+
+\section{Conclusion}
+
+The MLP demonstrated strong performance across all three evaluated datasets, with accuracy rates of 95\%, 100\%, and 82.29\% for Datasets 1, 2, and 4, respectively. The results underscore the critical importance of hyperparameter tuning and model architecture selection in achieving optimal performance, particularly in complex, high-dimensional problem spaces.
+
+It is notable that the combination of large architectures and exceedingly low learning rates resulted in significantly worse performance. This behavior is likely due to the model's inability to effectively navigate the loss landscape and a higher susceptibility to becoming trapped in local minima early in the training process. Conversely, appropriate regularization techniques and adaptive optimizers enhanced generalization and convergence rates, as evidenced by the superior performance of specific configurations.
+
+Table~\ref{tab:param_summary} presents the relative frequency of hyperparameters among the most successful models for each dataset. The Adam optimizer and the Tanh activation function emerge as the predominant choices across most scenarios. However, the selection of regularization techniques (None, Dropout, or L2) exhibits a much more uniform distribution, suggesting that the optimal regularization strategy does not have a definitive winner and remains highly dependent on the specific dataset and topology employed.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c c c c}
+        \toprule
+        \textbf{Dataset} & \textbf{Optimizer} & \textbf{Activation Function} & \textbf{Regularization} \\
+        \midrule
+        1 & \textbf{Adam=60\%} / SGD=40\% & \textbf{Tanh=60\%} / ReLU=40\% & \textbf{None=40\%} / Drop.=20\% / \textbf{L2=40\%} \\
+        2 & \textbf{Adam=80\%} / SGD=20\% & Tanh=41\% / \textbf{ReLU=59\%} & \textbf{None=34\%} / Drop.=33\% / L2=33\% \\
+        4 & \textbf{Adam=60\%} / SGD=40\% & \textbf{Tanh=65\%} / ReLU=35\% & None=32\% / \textbf{Drop.=34\%} / \textbf{L2=34\%} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Distribution of hyperparameters among the top-performing configurations.}
+    \label{tab:param_summary}
+\end{table}
+
+\end{document}
